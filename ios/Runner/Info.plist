@@ -45,6 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+<<<<<<< HEAD
 	<key>NSCameraUsageDescription</key>
 	<string>앱이 사진을 촬영하기 위해 카메라에 접근합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -54,5 +55,7 @@
 	<key>NSAllowsArbitraryLoads</key>
 	<true/>
 	</dict>
+=======
+>>>>>>> 29dcad5 (sigining 문제 해결)
 </dict>
 </plist>
