@@ -1,20 +1,18 @@
 package com.goorm.cgcg.controller;
 
-import com.goorm.cgcg.config.CookieUtils;
 import com.goorm.cgcg.config.token.TokenDto;
 import com.goorm.cgcg.config.token.TokenProvider;
 import com.goorm.cgcg.dto.member.LoginRequestDto;
+import com.goorm.cgcg.dto.member.LoginResponseDto;
+import com.goorm.cgcg.dto.member.MainPageDto.MainDto;
 import com.goorm.cgcg.dto.member.RegisterRequestDto;
 import com.goorm.cgcg.service.MemberService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,25 +40,21 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Cookie> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         TokenDto token = memberService.login(loginRequestDto);
-        Cookie cookie = new Cookie("access_token", token.getAccessToken());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 30);
-        response.addCookie(cookie);
-        return ResponseEntity.ok(cookie);
+        return ResponseEntity.ok(LoginResponseDto.builder().accessToken(token.getAccessToken()).build());
     }
 
     @GetMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        TokenDto token = tokenProvider.resolveToken(request);
-        TokenDto newToken = tokenProvider.reissueToken(token.getAccessToken(), request, response);
-        Cookie cookie = new Cookie("access_token", newToken.getAccessToken());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 30);
-        response.addCookie(cookie);
-        return ResponseEntity.ok(null);
+        String token = tokenProvider.resolveToken(request);
+        TokenDto newToken = tokenProvider.reissueToken(token, request, response);
+        return ResponseEntity.ok(LoginResponseDto.builder().accessToken(newToken.getAccessToken()));
+    }
+
+    @GetMapping("/main")
+    public ResponseEntity<MainDto> getMain(@RequestParam Long id) {
+        MainDto mainDto = memberService.getMainData(id);
+        return ResponseEntity.ok(mainDto);
     }
 }

@@ -30,7 +30,5 @@ public class Event {
 
     private String title;
 
-    private String description;
-
     private String image;
 }

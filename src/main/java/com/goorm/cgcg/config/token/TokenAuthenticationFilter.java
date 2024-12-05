@@ -1,6 +1,5 @@
 package com.goorm.cgcg.config.token;
 
-import com.goorm.cgcg.config.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -11,7 +10,10 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ErrorHandler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,28 +26,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
-        Optional<Cookie> accessTokenCookie = CookieUtils.getCookie(request, "accessToken");
+        String token = request.getHeader("Authorization");
+        String accessToken = tokenProvider.resolveToken(request);
 
-        if (accessTokenCookie.isPresent()) {
-            String accessToken = accessTokenCookie.get().getValue();
-
+        if (token != null && token.startsWith("Bearer ")) {
             if (isTokenBlacklisted(accessToken)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("로그아웃 처리된 엑세스 토큰입니다.");
                 return;
             }
-
-            if (tokenProvider.validateToken(accessToken)) {
-                UsernamePasswordAuthenticationToken authentication =
-                    (UsernamePasswordAuthenticationToken) tokenProvider.getAuthentication(accessToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("유효하지 않은 토큰입니다.");
-                return;
+            if (!tokenProvider.validateToken(accessToken)) {
+                throw new Error("액세스 토큰이 유효하지 않습니다.");
             }
+            Authentication authentication = tokenProvider.getAuthentication(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         filterChain.doFilter(request, response);
     }
 

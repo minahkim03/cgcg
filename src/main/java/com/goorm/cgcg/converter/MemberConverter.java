@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberConverter {
 
-    public static Member convertToEntity(RegisterRequestDto registerDto) {
+    public static Member convertToEntity(RegisterRequestDto registerDto, String code) {
         return Member.builder()
             .email(registerDto.getEmail())
             .password(registerDto.getPassword())
             .nickname(registerDto.getNickname())
             .profileImage(registerDto.getProfileImage())
+            .code(code)
             .build();
     }
 

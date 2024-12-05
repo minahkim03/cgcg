@@ -98,8 +98,6 @@ public class WebSecurityConfig {
                     Optional<String> accessToken = CookieUtils.readServletCookie(request, "access_token");
 
                     accessToken.ifPresent(token -> {
-                        TokenRedis tokenRedis = tokenRedisRepository.findByAccessToken(token)
-                            .orElseThrow(() -> new RuntimeException("Token not found in Redis"));
 
                         Long expirationTime = tokenProvider.getRemainingExpirationTime(token);
                         redisTemplate.opsForValue().set(token, "logout", expirationTime, TimeUnit.MILLISECONDS);

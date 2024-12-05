@@ -42,4 +42,8 @@ public class Invitation {
     @ColumnDefault("false")
     @Builder.Default
     private boolean accepted = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
 }

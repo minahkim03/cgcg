@@ -2,25 +2,22 @@ package com.goorm.cgcg.config.token;
 
 import static java.lang.System.getenv;
 
-import com.goorm.cgcg.config.CookieUtils;
-import com.goorm.cgcg.repository.MemberRepository;
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +26,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -37,7 +33,9 @@ import org.springframework.util.StringUtils;
 public class TokenProvider {
 
     private final TokenRedisRepository tokenRedisRepository;
-    private SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    Map<String, String> env = getenv();
+    private String secretKey = Base64.getEncoder().encodeToString(
+        Objects.requireNonNull(env.get("JWT_SECRET")).getBytes());
     private static final String AUTHORITIES_KEY = "ROLE_USER";
 
     public TokenDto generateToken(Authentication authentication) {
@@ -50,12 +48,12 @@ public class TokenProvider {
         String accessToken = Jwts.builder()
             .setIssuedAt(new Date(currentTime))
             .setExpiration(accessTokenExpirationTime)
-            .signWith(secretKey)
+            .signWith(SignatureAlgorithm.HS256, secretKey)
             .compact();
 
         String refreshToken = Jwts.builder()
             .setExpiration(refreshTokenExpirationTime)
-            .signWith(secretKey)
+            .signWith(SignatureAlgorithm.HS256, secretKey)
             .compact();
 
         return TokenDto.builder()
@@ -85,9 +83,6 @@ public class TokenProvider {
 
     //액세스 토큰과 리프레시 토큰 함께 재발행
     public TokenDto reissueToken(String token, HttpServletRequest request, HttpServletResponse response) {
-
-        CookieUtils.deleteCookie(request, response, "accessToken" );
-
         TokenRedis tokenRedis = tokenRedisRepository.findByAccessToken(token)
             .orElseThrow();
 
@@ -97,8 +92,6 @@ public class TokenProvider {
 
         TokenDto tokenDTO = generateToken(authentication);
 
-        CookieUtils.saveCookie(response, tokenDTO.getAccessToken());
-
         tokenRedis.updateToken(tokenDTO.getAccessToken(), tokenDTO.getRefreshToken());
         tokenRedisRepository.save(tokenRedis);
 
@@ -106,22 +99,14 @@ public class TokenProvider {
 
     }
 
-    public TokenDto resolveToken(HttpServletRequest request) {
+    public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7);
-
-            TokenRedis tokenRedis = tokenRedisRepository.findByAccessToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
-
-            return TokenDto.builder()
-                .grantType("Bearer")
-                .accessToken(tokenRedis.getAccessToken())
-                .refreshToken(tokenRedis.getRefreshToken())
-                .build();
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
         return null;
     }
+
 
     public boolean validateToken(String token) {
         try {
