@@ -16,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     try {
       final response = await _dio.post(
-        'http://localhost:8080/login', // 로그인 요청 URL
+        'http://localhost:8080/login',
         data: {
           'email': _emailController.text,
           'password': _passwordController.text,
@@ -24,18 +24,25 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        // 로그인 성공 시 쿠키에 access_token이 포함될 것으로 가정
-        final String accessToken = response.headers.value('set-cookie') ?? '';
+        // 서버에서 반환된 JSON에서 accessToken 추출
+        final String accessToken = response.data['accessToken'] ?? '';
 
-        // 로그인 성공 후 HomeScreen으로 이동
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage(accessToken: accessToken)),
-        );
+        if (accessToken.isNotEmpty) {
+          // 로그인 성공 후 HomeScreen으로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage(accessToken: accessToken)),
+          );
+        } else {
+          // accessToken이 없는 경우
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('로그인 실패: accessToken이 없습니다.')),
+          );
+        }
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('로그인 실패')),
+          SnackBar(content: Text('로그인 실패: ${response.statusMessage}')),
         );
       }
     } catch (e) {

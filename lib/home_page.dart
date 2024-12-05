@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchProfile() async {
     try {
       final response = await Dio().get(
-        'http://localhost:8080/profile', // 프로필 정보 요청
+        'http://localhost:8080/main', // 프로필 정보 요청
         options: Options(
           headers: {
             'Authorization': 'Bearer $_accessToken', // 토큰을 Authorization 헤더로 보냄
