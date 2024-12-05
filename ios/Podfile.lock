@@ -24,10 +24,6 @@ SPEC CHECKSUMS:
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
 
-<<<<<<< HEAD
-PODFILE CHECKSUM: bb9f11199e8dbb9a1948a956d64e5985c52cd3c9
-=======
 PODFILE CHECKSUM: 6835ca737bdf43db78e6065a290a8f3c79b953c7
->>>>>>> 29dcad5 (sigining 문제 해결)
 
 COCOAPODS: 1.16.2

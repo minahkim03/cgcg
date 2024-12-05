@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Cgcg</string>
+	<string>Cgcg Project</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>cgcg</string>
+	<string>cgcg_project</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,17 +45,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-<<<<<<< HEAD
-	<key>NSCameraUsageDescription</key>
-	<string>앱이 사진을 촬영하기 위해 카메라에 접근합니다.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>앱이 사진을 업로드하기 위해 사진 라이브러리에 접근합니다.</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-	<key>NSAllowsArbitraryLoads</key>
-	<true/>
-	</dict>
-=======
->>>>>>> 29dcad5 (sigining 문제 해결)
 </dict>
 </plist>
