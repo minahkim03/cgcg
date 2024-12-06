@@ -43,8 +43,8 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        TokenDto token = memberService.login(loginRequestDto);
-        return ResponseEntity.ok(LoginResponseDto.builder().accessToken(token.getAccessToken()).build());
+        LoginResponseDto response = memberService.login(loginRequestDto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/reissue")

@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LoginResponseDto {
     private String accessToken;
+    private String profileImage;
+    private String nickname;
+    private Long memberId;
 }

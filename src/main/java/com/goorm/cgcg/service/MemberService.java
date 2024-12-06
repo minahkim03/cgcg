@@ -7,6 +7,7 @@ import com.goorm.cgcg.converter.MemberConverter;
 import com.goorm.cgcg.domain.Event;
 import com.goorm.cgcg.domain.Member;
 import com.goorm.cgcg.dto.member.LoginRequestDto;
+import com.goorm.cgcg.dto.member.LoginResponseDto;
 import com.goorm.cgcg.dto.member.MainPageDto.MainDto;
 import com.goorm.cgcg.dto.member.MainPageDto.MainEventDto;
 import com.goorm.cgcg.dto.member.RegisterRequestDto;
@@ -62,7 +63,7 @@ public class MemberService {
         }
     }
 
-    public TokenDto login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
         Member member = memberRepository.findByEmail(email)
@@ -77,7 +78,12 @@ public class MemberService {
             TokenDto jwtToken = tokenProvider.generateToken(authentication);
             tokenRedisRepository.save(
                 new TokenRedis(authentication.getName(), jwtToken.getAccessToken(), jwtToken.getRefreshToken()));
-            return jwtToken;
+            return LoginResponseDto.builder()
+                .memberId(member.getId())
+                .accessToken(jwtToken.getAccessToken())
+                .nickname(member.getNickname())
+                .profileImage(member.getProfileImage())
+                .build();
         }
     }
 
