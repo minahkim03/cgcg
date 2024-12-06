@@ -6,6 +6,7 @@ import com.goorm.cgcg.dto.member.LoginRequestDto;
 import com.goorm.cgcg.dto.member.LoginResponseDto;
 import com.goorm.cgcg.dto.member.MainPageDto.MainDto;
 import com.goorm.cgcg.dto.member.RegisterRequestDto;
+import com.goorm.cgcg.service.FileUploadService;
 import com.goorm.cgcg.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ public class MemberController {
 
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
+    private final FileUploadService fileUploadService;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Validated  RegisterRequestDto registerDto) throws IOException {
@@ -35,7 +37,7 @@ public class MemberController {
 
     @PostMapping("/register/image")
     public ResponseEntity<String> registerImage(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = memberService.uploadProfileImage(file);
+        String url = fileUploadService.uploadFile(file);
         return ResponseEntity.ok(url);
     }
 

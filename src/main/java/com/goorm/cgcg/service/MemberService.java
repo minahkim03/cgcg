@@ -39,8 +39,6 @@ public class MemberService {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final TokenRedisRepository tokenRedisRepository;
-    private final RedisTemplate redisTemplate;
-    private final FileUploadService fileUploadService;
     private final MemberEventRepository memberEventRepository;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -62,10 +60,6 @@ public class MemberService {
         if (!memberRepository.existsByEmail(registerRequestDto.getEmail())) {
             memberRepository.save(member);
         }
-    }
-
-    public String uploadProfileImage(MultipartFile file) throws IOException {
-        return fileUploadService.uploadFile(file);
     }
 
     public TokenDto login(LoginRequestDto loginRequestDto) {
