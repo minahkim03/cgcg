@@ -53,6 +53,9 @@ public class Member implements UserDetails{
 
     private String code;
 
+    @OneToMany(mappedBy = "member")
+    private List<FriendRelationship> friendRelationships;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
