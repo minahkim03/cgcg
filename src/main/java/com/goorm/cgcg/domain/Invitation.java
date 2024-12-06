@@ -46,4 +46,6 @@ public class Invitation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    public void setAccepted(boolean accepted) {this.accepted = accepted;}
 }
