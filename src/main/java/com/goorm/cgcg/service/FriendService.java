@@ -33,11 +33,16 @@ public class FriendService {
     public void addFriend(Long id, Long friendId) {
         Member member = memberRepository.findById(id).orElseThrow();
         Member friend = memberRepository.findById(friendId).orElseThrow();
-        FriendRelationship friendRelationship = FriendRelationship.builder()
+        FriendRelationship friendRelationship1 = FriendRelationship.builder()
             .friend(friend)
             .member(member)
             .build();
-        friendRelationshipRepository.save(friendRelationship);
+        FriendRelationship friendRelationship2 = FriendRelationship.builder()
+            .friend(member)
+            .member(friend)
+            .build();
+        friendRelationshipRepository.save(friendRelationship1);
+        friendRelationshipRepository.save(friendRelationship2);
     }
 
     public FriendDto getFriendList(Long id) {
@@ -48,6 +53,7 @@ public class FriendService {
             friends.add(CustomFriendDto.builder()
                 .nickname(friend.getNickname())
                 .profileImage(friend.getProfileImage())
+                .id(friend.getId())
                 .build());
         }
         return FriendDto.builder()

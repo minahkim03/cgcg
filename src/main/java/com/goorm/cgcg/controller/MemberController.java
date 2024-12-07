@@ -59,4 +59,9 @@ public class MemberController {
         MainDto mainDto = memberService.getMainData(id);
         return ResponseEntity.ok(mainDto);
     }
+
+    @GetMapping("/code")
+    public ResponseEntity<String> getCode(@RequestParam Long id) {
+        return ResponseEntity.ok(memberService.getCode(id));
+    }
 }

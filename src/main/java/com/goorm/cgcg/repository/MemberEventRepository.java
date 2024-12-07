@@ -14,6 +14,6 @@ public interface MemberEventRepository extends JpaRepository<MemberEvent, Long> 
     @Query("SELECT me.event FROM MemberEvent me WHERE me.member.id = :memberId")
     List<Event> findEventsByMemberId(@Param("memberId") Long memberId);
 
-    @Query("SELECT me.event FROM MemberEvent me WHERE me.event.id = :eventId")
+    @Query("SELECT me.member FROM MemberEvent me WHERE me.event.id = :eventId")
     List<Member> findMembersByEventId(@Param("eventId") Long eventId);
 }

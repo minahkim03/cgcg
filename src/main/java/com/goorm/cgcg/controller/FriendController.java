@@ -32,6 +32,7 @@ public class FriendController {
     @GetMapping("/friend")
     public ResponseEntity<FriendDto> getFriendList(@RequestParam Long id) {
         FriendDto friendList = friendService.getFriendList(id);
+        System.out.println(friendList);
         return ResponseEntity.ok(friendList);
     }
 }

@@ -45,7 +45,12 @@ public class TokenProvider {
         Date accessTokenExpirationTime = new Date(currentTime + (1000 * 60 * 60 * 24));
         Date refreshTokenExpirationTime = new Date(currentTime + (1000 * 60 * 60 * 24 * 7));
 
+        Claims claims = Jwts.claims().setSubject(authentication.getName());
+        claims.put(AUTHORITIES_KEY, authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+
         String accessToken = Jwts.builder()
+            .setClaims(claims)
             .setIssuedAt(new Date(currentTime))
             .setExpiration(accessTokenExpirationTime)
             .signWith(SignatureAlgorithm.HS256, secretKey)

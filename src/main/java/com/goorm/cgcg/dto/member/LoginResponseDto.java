@@ -14,5 +14,5 @@ public class LoginResponseDto {
     private String accessToken;
     private String profileImage;
     private String nickname;
-    private Long memberId;
+    private String memberId;
 }

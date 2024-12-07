@@ -79,7 +79,7 @@ public class MemberService {
             tokenRedisRepository.save(
                 new TokenRedis(authentication.getName(), jwtToken.getAccessToken(), jwtToken.getRefreshToken()));
             return LoginResponseDto.builder()
-                .memberId(member.getId())
+                .memberId(String.valueOf(member.getId()))
                 .accessToken(jwtToken.getAccessToken())
                 .nickname(member.getNickname())
                 .profileImage(member.getProfileImage())
@@ -104,4 +104,8 @@ public class MemberService {
         return MainDto.builder().events(eventList).build();
     }
 
+    public String getCode(Long id) {
+        Member member = memberRepository.findById(id).orElseThrow();
+        return member.getCode();
+    }
 }

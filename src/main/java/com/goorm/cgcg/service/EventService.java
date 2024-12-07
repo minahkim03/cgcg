@@ -74,7 +74,6 @@ public class EventService {
         List<Invitation> invitations = new ArrayList<>();
 
         for (Member member : members) {
-            memberEvents.add(createMemberEvent(member, event, "MEMBER"));
             invitations.add(Invitation.builder()
                 .event(event)
                 .sender(leader)

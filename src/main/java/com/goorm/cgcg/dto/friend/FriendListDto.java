@@ -24,6 +24,7 @@ public class FriendListDto {
     public static class CustomFriendDto {
         private String profileImage;
         private String nickname;
+        private Long id;
     }
 
 }

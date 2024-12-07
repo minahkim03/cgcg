@@ -39,7 +39,6 @@ public class WebSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final RedisTemplate redisTemplate;
     private final TokenProvider tokenProvider;
-    private final TokenRedisRepository tokenRedisRepository;
 
     @Bean
     public BCryptPasswordEncoder encoder() {
@@ -69,7 +68,7 @@ public class WebSecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:80800")
+                    .allowedOrigins("http://127.0.0.1")
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
                     .allowCredentials(true);
@@ -81,8 +80,8 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
+            .cors(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(withDefaults())
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(c ->
                 c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -95,15 +94,10 @@ public class WebSecurityConfig {
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .addLogoutHandler((request, response, authentication) -> {
-                    Optional<String> accessToken = CookieUtils.readServletCookie(request, "access_token");
-
-                    accessToken.ifPresent(token -> {
-
-                        Long expirationTime = tokenProvider.getRemainingExpirationTime(token);
-                        redisTemplate.opsForValue().set(token, "logout", expirationTime, TimeUnit.MILLISECONDS);
-                        redisTemplate.opsForValue().getOperations().delete(token);
-                        CookieUtils.deleteCookie(request, response, "access_token");
-                    });
+                    String token = tokenProvider.resolveToken(request);
+                    Long expirationTime = tokenProvider.getRemainingExpirationTime(token);
+                    redisTemplate.opsForValue().set(token, "logout", expirationTime, TimeUnit.MILLISECONDS);
+                    redisTemplate.opsForValue().getOperations().delete(token);
                 })
                 .logoutSuccessHandler((request, response, authentication) -> {
                     response.setStatus(HttpServletResponse.SC_OK);
