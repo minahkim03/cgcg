@@ -31,7 +31,9 @@ public class Place {
 
     private LocalTime time;
 
-    private String address;
+    private Float latitude;
+
+    private Float longitude;
 
     private String name;
 

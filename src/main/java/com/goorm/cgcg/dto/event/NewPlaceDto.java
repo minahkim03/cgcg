@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class NewPlaceDto {
 
-    private String address;
+    private Float latitude;
+    private Float longitude;
     private String name;
     private LocalTime time;
 

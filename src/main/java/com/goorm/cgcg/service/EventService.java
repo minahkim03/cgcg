@@ -49,7 +49,7 @@ public class EventService {
         return EventDto.builder()
             .title(event.getTitle())
             .date(event.getDate())
-            .places(placeRepository.findAllByEvent(event))
+            .places(placeRepository.findAllByEventOrderByTime(event))
             .members(memberList)
             .build();
     }
