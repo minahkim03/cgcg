@@ -1,34 +1,37 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'register_screen.dart';
 import 'login_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class LoginHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('홈'),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('홈'),
       ),
-      body: Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            CupertinoButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  CupertinoPageRoute(builder: (context) => RegisterScreen()),
                 );
               },
+              color: CupertinoColors.activeBlue,
               child: Text('회원가입'),
             ),
-            ElevatedButton(
+            SizedBox(height: 20), // 버튼 사이 간격
+            CupertinoButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  CupertinoPageRoute(builder: (context) => LoginScreen()),
                 );
               },
+              color: CupertinoColors.activeBlue,
               child: Text('로그인'),
             ),
           ],

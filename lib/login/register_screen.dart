@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'profile_upload_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -13,34 +13,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('회원가입'),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('회원가입'),
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
+            CupertinoTextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: '이메일'),
+              placeholder: '이메일',
               keyboardType: TextInputType.emailAddress,
             ),
-            TextField(
+            SizedBox(height: 16),
+            CupertinoTextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: '비밀번호'),
+              placeholder: '비밀번호',
               obscureText: true,
             ),
-            TextField(
+            SizedBox(height: 16),
+            CupertinoTextField(
               controller: _nicknameController,
-              decoration: InputDecoration(labelText: '닉네임'),
+              placeholder: '닉네임',
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            CupertinoButton(
+              color: CupertinoColors.activeBlue,
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfileUploadScreen(
+                  CupertinoPageRoute(builder: (context) => ProfileUploadScreen(
                     email: _emailController.text,
                     password: _passwordController.text,
                     nickname: _nicknameController.text,

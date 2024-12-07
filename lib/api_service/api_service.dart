@@ -14,4 +14,8 @@ abstract class ApiService {
 
   @POST("/register")
   Future<void> registerUser(@Body() Map<String, dynamic> userData);
+
+  @POST("/event/new/image")
+  @MultiPart()
+  Future<String> uploadEventImage(@Part(name: "file") File image);
 }

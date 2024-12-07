@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:cgcg/login/login_home.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'api_service.dart';
+import '../api_service/api_service.dart';
 
 class ProfileUploadScreen extends StatefulWidget {
   final String email;
@@ -44,10 +45,8 @@ class _ProfileUploadScreenState extends State<ProfileUploadScreen> {
     if (_profileImage == null) return;
 
     try {
-      // 1. 프로필 사진 업로드
       String profileImageUrl = await _apiService.uploadProfileImage(_profileImage!);
 
-      // 2. 회원가입 데이터 전송
       final userData = {
         "email": widget.email,
         "password": widget.password,
@@ -56,41 +55,67 @@ class _ProfileUploadScreenState extends State<ProfileUploadScreen> {
       };
 
       await _apiService.registerUser(userData);
-      print("회원가입 완료!");
+      _showDialog('회원가입 완료!', '회원가입이 성공적으로 완료되었습니다.');
+      Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(builder: (context) => LoginHome()),
+        (route) => false,
+      );
     } catch (e) {
-      print("에러 발생: $e");
+      _showDialog('에러 발생', '회원가입 중 오류가 발생했습니다: $e');
     }
+  }
+
+  void _showDialog(String title, String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            CupertinoDialogAction(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('프로필 사진 업로드'),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('프로필 사진 업로드'),
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
               onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey[200],
-                child: _profileImage == null
-                    ? Icon(Icons.camera_alt, size: 50)
-                    : ClipOval(
-                        child: Image.file(
+              child: ClipOval(
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  color: CupertinoColors.systemGrey2,
+                  child: _profileImage == null
+                      ? Icon(CupertinoIcons.camera, size: 50)
+                      : Image.file(
                           _profileImage!,
-                          width: 100,
-                          height: 100,
                           fit: BoxFit.cover,
                         ),
-                      ),
+                ),
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            CupertinoButton(
+              color: CupertinoColors.activeBlue,
               onPressed: _uploadAndRegister,
               child: Text('회원가입 완료'),
             ),
