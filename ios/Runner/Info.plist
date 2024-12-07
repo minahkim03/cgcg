@@ -47,5 +47,9 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>이 앱은 사진 라이브러리에 접근하여 사용자가 선택한 이미지를 업로드합니다.</string>
+	<key>NMFClientId</key>
+	<string>ny3wv784lx</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>위치 검색</string>
 </dict>
 </plist>

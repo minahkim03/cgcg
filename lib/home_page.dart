@@ -4,6 +4,7 @@ import 'user_preferences.dart';
 import 'mypage/mypage_screen.dart';
 import 'event/add_event_screen1.dart';
 import 'invitation/invitations_screen.dart';
+import 'event/event_screen.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -167,7 +168,7 @@ class HomePageContent extends StatelessWidget {
                   final String image = event['image'];
                   final String date = event['date'];
                   final String title = event['title'];
-                  final int id = event['id'];
+                  final int eventId = event['id'];
                   final int participantNumber = event['participantNumber'];
                   final String participantName = event['participantName'];
 
@@ -175,9 +176,8 @@ class HomePageContent extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(builder: (context) => EventScreen())
+                        CupertinoPageRoute(builder: (context) => EventScreen(eventId:eventId))
                       );
-                      print(id);
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

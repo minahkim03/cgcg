@@ -66,7 +66,7 @@ class _AddEventScreen4State extends State<AddEventScreen4> {
         "image": imageUrl, 
       };
 
-      await _dio.post('http://localhost:8080/event/new?id=$memberId', data: eventData,options: Options(
+      await _dio.post('http://localhost:8080/event/new?id=$memberId', data: eventData, options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
           },
@@ -85,7 +85,7 @@ class _AddEventScreen4State extends State<AddEventScreen4> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('이벤트 생성 4'),
+        middle: Text('새로운 이벤트 생성'),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -90,7 +90,11 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
         case 1:
           return HomePage();
         case 2:
-          return InvitationsScreen();
+          return InvitationsContent(
+            invitations: invitations,
+            onAccept: _acceptInvitation, 
+            onDecline: _declineInvitation,
+          );
         default:
           return InvitationsContent(
             invitations: invitations,
