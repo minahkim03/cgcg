@@ -30,8 +30,5 @@ public class Chat {
 
     private String fileUrl;
 
-    @Indexed
-    private LocalDateTime createTime;
-
     private String senderProfile;
 }

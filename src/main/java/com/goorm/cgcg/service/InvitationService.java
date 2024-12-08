@@ -26,18 +26,19 @@ public class InvitationService {
     private final MemberEventRepository memberEventRepository;
 
     public InvitationListDto getInvitationList(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow();
-        List<Invitation> receivedInvitations = member.getReceivedInvitations();
+        List<Invitation> receivedInvitations = invitationRepository.findByReceiverId(id);
         List<CustomInvitationDto> invitationList = new ArrayList<>();
         for (Invitation invitation : receivedInvitations) {
-            invitationList.add(CustomInvitationDto.builder()
-                .profileImage(invitation.getSender().getProfileImage())
-                .date(invitation.getEvent().getDate())
-                .title(invitation.getEvent().getTitle())
-                .id(invitation.getId())
-                .nickname(invitation.getSender().getNickname())
-                .build()
-            );
+            if (!invitation.isAccepted()) {
+                invitationList.add(CustomInvitationDto.builder()
+                    .profileImage(invitation.getSender().getProfileImage())
+                    .date(invitation.getEvent().getDate())
+                    .title(invitation.getEvent().getTitle())
+                    .id(invitation.getId())
+                    .nickname(invitation.getSender().getNickname())
+                    .build()
+                );
+            }
         }
         return InvitationListDto.builder().invitations(invitationList).build();
     }
@@ -49,7 +50,6 @@ public class InvitationService {
 
         Member receiver = invitation.getReceiver();
         receiver.getReceivedInvitations().removeIf(inv -> inv.getId().equals(id));
-
         invitationRepository.save(invitation);
         memberRepository.save(receiver);
 

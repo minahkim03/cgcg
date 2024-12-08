@@ -12,7 +12,6 @@ public class ChatConverter {
     public Chat convertToEntity(ChatDto chatDto, Member sender, String roomId) {
 
         return Chat.builder()
-            .createTime(LocalDateTime.now())
             .fileUrl(chatDto.getFile())
             .senderId(sender.getId())
             .sender(sender.getNickname())

@@ -26,7 +26,6 @@ public class ChatListDto {
         private Long senderId;
         private String nickname;
         private String profileImage;
-        private LocalDateTime time;
         private String message;
         private String file;
     }

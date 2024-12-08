@@ -46,16 +46,15 @@ public class ChatService {
     }
 
     public ChatMessageListDto getChatMessageList(String chatRoomId) {
-        List<Chat> chatList = chatRepository.findAllByRoomIdOrderByCreateTime(chatRoomId);
+        List<Chat> chatList = chatRepository.findAllByRoomIdOrderById(chatRoomId);
         List<ChatMessageDto> chatMessages = new ArrayList<>();
         for (Chat chat : chatList) {
             chatMessages.add(ChatMessageDto.builder()
                     .file(chat.getFileUrl())
                     .message(chat.getMessage())
                     .nickname(chat.getSender())
-                    .profileImage(chat.getSender())
+                    .profileImage(chat.getSenderProfile())
                     .senderId(chat.getSenderId())
-                    .time(chat.getCreateTime())
                 .build());
         }
         return ChatMessageListDto.builder()

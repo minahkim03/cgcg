@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 public class PlaceConverter {
     public Place convertToEntity(NewPlaceDto newPlaceDto, Event event) {
         return Place.builder()
-            .address(newPlaceDto.getAddress())
+            .latitude(newPlaceDto.getLatitude())
+            .longitude(newPlaceDto.getLongitude())
             .name(newPlaceDto.getName())
             .time(newPlaceDto.getTime())
             .event(event)

@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChatRepository extends MongoRepository<Chat, String> {
-    List<Chat> findAllByRoomIdOrderByCreateTime(String chatRoomId);
+    List<Chat> findAllByRoomIdOrderById(String chatRoomId);
 }
