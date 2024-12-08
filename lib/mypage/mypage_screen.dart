@@ -20,7 +20,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
   String? code;
   String? accessToken;
 
-  int _selectedIndex = 0; 
+  int? _selectedIndex; 
 
   @override
   void initState() {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:dio/dio.dart';
 import 'user_preferences.dart';
@@ -5,7 +6,6 @@ import 'mypage/mypage_screen.dart';
 import 'event/add_event_screen1.dart';
 import 'invitation/invitations_screen.dart';
 import 'event/event_screen.dart';
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   String? accessToken;
 
   int _selectedIndex = 1; 
+  Timer? _timer;
 
   @override
   void initState() {
@@ -27,31 +28,44 @@ class _HomePageState extends State<HomePage> {
     _loadUserData();
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _loadUserData() async {
     final userData = await UserPreferences.loadUserData();
-    if(mounted){
+    if (mounted) {
       setState(() {
         profileImage = userData['profileImage'];
         memberId = userData['memberId'];
         accessToken = userData['accessToken'];
       });
     }
-    if(accessToken!=null){
-       _fetchEvents();
+    if (accessToken != null) {
+      _fetchEvents();
+      _startFetchingEvents();
     }
+  }
+
+  void _startFetchingEvents() {
+    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+      _fetchEvents(); 
+    });
   }
 
   Future<void> _fetchEvents() async {
     if (memberId != null) {
       try {
         final response = await _dio.get(
-        'http://localhost:8080/main?id=$memberId',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
+          'http://localhost:8080/main?id=$memberId',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
         if (mounted) {
           setState(() {
             events = response.data['events'];
@@ -80,16 +94,16 @@ class _HomePageState extends State<HomePage> {
         case 1:
           return HomePageContent(
             profileImage: profileImage,
-            memberId : memberId,
-            events : events
+            memberId: memberId,
+            events: events,
           );
         case 2:
           return InvitationsScreen();
         default:
           return HomePageContent(
             profileImage: profileImage,
-            memberId : memberId,
-            events : events
+            memberId: memberId,
+            events: events,
           );
       }
     }
@@ -110,10 +124,10 @@ class _HomePageState extends State<HomePage> {
             label: '초대 확인',
           ),
         ],
-        onTap: _onTabTapped, 
+        onTap: _onTabTapped,
       ),
       tabBuilder: (context, index) {
-        return _buildCurrentPage(); 
+        return _buildCurrentPage();
       },
     );
   }
@@ -139,7 +153,7 @@ class HomePageContent extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (context) => MyPageScreen())
+                    CupertinoPageRoute(builder: (context) => MyPageScreen()),
                   );
                 },
                 child: ClipOval(
@@ -176,7 +190,7 @@ class HomePageContent extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(builder: (context) => EventScreen(eventId:eventId))
+                        CupertinoPageRoute(builder: (context) => EventScreen(eventId: eventId)),
                       );
                     },
                     child: Column(
@@ -191,7 +205,7 @@ class HomePageContent extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           ),
-                          height: 100,
+                          height: 150,
                         ),
                         Text(
                           title,
@@ -202,8 +216,9 @@ class HomePageContent extends StatelessWidget {
                           style: TextStyle(color: CupertinoColors.systemGrey),
                         ),
                         Text(
-                          participantNumber != 1 ? 
-                          '$participantName님 외 ${participantNumber - 1}명' : '$participantName님',
+                          participantNumber != 1
+                              ? '$participantName님 외 ${participantNumber - 1}명'
+                              : '$participantName님',
                           style: TextStyle(color: CupertinoColors.systemGrey),
                         ),
                         SizedBox(height: 16),
@@ -219,4 +234,3 @@ class HomePageContent extends StatelessWidget {
     );
   }
 }
-

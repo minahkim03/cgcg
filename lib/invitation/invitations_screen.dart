@@ -53,9 +53,13 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
     }
   }
 
-  void _acceptInvitation(String invitationId) async {
+  void _acceptInvitation(int invitationId) async {
     try {
-      await _dio.patch('http://localhost:8080/invitations?id=$invitationId&accept=true');
+      await _dio.patch('http://localhost:8080/invitations?id=$invitationId&accept=true', options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),);
       setState(() {
         invitations.removeWhere((inv) => inv['id'] == invitationId);
       });
@@ -64,9 +68,13 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
     }
   }
 
-  void _declineInvitation(String invitationId) async {
+  void _declineInvitation(int invitationId) async {
     try {
-      await _dio.patch('http://localhost:8080/invitations?id=$invitationId&accept=false');
+      await _dio.patch('http://localhost:8080/invitations?id=$invitationId&accept=false', options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),);
       setState(() {
         invitations.removeWhere((inv) => inv['id'] == invitationId);
       });
@@ -129,26 +137,10 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   }
 }
 
-class Invitation {
-  final String nickname;
-  final String title;
-  final String date;
-  final String id;
-  final String profileImage;
-
-  Invitation({
-    required this.nickname,
-    required this.title,
-    required this.date,
-    required this.id,
-    required this.profileImage,
-  });
-}
-
 class InvitationsContent extends StatelessWidget {
   final List<dynamic> invitations;
-  final Function(String) onAccept; 
-  final Function(String) onDecline; 
+  final Function(int) onAccept; 
+  final Function(int) onDecline; 
 
   InvitationsContent({
     required this.invitations,
@@ -160,6 +152,14 @@ class InvitationsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Container(
+          padding: EdgeInsets.all(16.0),
+          alignment: Alignment.center,
+          child: Text(
+            '초대',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
         Expanded(
           child: ListView.builder(
             itemCount: invitations.length,
@@ -186,8 +186,8 @@ class InvitationsContent extends StatelessWidget {
 
 class InvitationCard extends StatelessWidget {
   final Invitation invitation;
-  final Function(String) onAccept;
-  final Function(String) onDecline;
+  final Function(int) onAccept;
+  final Function(int) onDecline;
 
   InvitationCard({
     required this.invitation,
@@ -200,12 +200,23 @@ class InvitationCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
+        decoration: BoxDecoration(
+          color: CupertinoColors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: CupertinoColors.systemGrey.withOpacity(0.2),
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             ClipOval(
               child: Container(
-                width: 50,
-                height: 50,
+                width: 70, 
+                height: 70,
                 child: Image.network(
                   invitation.profileImage,
                   fit: BoxFit.cover,
@@ -219,12 +230,12 @@ class InvitationCard extends StatelessWidget {
                 children: [
                   Text(
                     '${invitation.nickname}님이 초대를 보냈어요!',
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
                   Text(
                     invitation.title,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     invitation.date,
@@ -232,18 +243,21 @@ class InvitationCard extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end, 
                     children: [
                       CupertinoButton(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), 
                         color: CupertinoColors.activeGreen,
-                        child: Text('수락'),
+                        child: Text('수락', style: TextStyle(fontSize: 16)),
                         onPressed: () {
                           onAccept(invitation.id);
                         },
                       ),
+                      SizedBox(width: 8), 
                       CupertinoButton(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), 
                         color: CupertinoColors.destructiveRed,
-                        child: Text('거절'),
+                        child: Text('거절', style: TextStyle(fontSize: 16)),
                         onPressed: () {
                           onDecline(invitation.id);
                         },
@@ -258,4 +272,20 @@ class InvitationCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class Invitation {
+  final String nickname;
+  final String title;
+  final String date;
+  final int id;
+  final String profileImage;
+
+  Invitation({
+    required this.nickname,
+    required this.title,
+    required this.date,
+    required this.id,
+    required this.profileImage,
+  });
 }

@@ -9,7 +9,7 @@ import '../user_preferences.dart';
 class AddEventScreen4 extends StatefulWidget {
   final String eventName;
   final DateTime eventDate;
-  final List<int> selectedMembers;
+  final List selectedMembers;
 
   AddEventScreen4({
     required this.eventName,
@@ -18,10 +18,10 @@ class AddEventScreen4 extends StatefulWidget {
   });
 
   @override
-  _AddEventScreen4State createState() => _AddEventScreen4State();
+  AddEventScreen4State createState() => AddEventScreen4State();
 }
 
-class _AddEventScreen4State extends State<AddEventScreen4> {
+class AddEventScreen4State extends State<AddEventScreen4> {
   final Dio _dio = Dio();
   final _picker = ImagePicker();
   File? _image;
@@ -36,7 +36,7 @@ class _AddEventScreen4State extends State<AddEventScreen4> {
     _loadUserData();
   }
 
-  Future<void> _loadUserData() async {
+  Future _loadUserData() async {
     final userData = await UserPreferences.loadUserData();
     setState(() {
       memberId = userData['memberId'];
@@ -44,33 +44,40 @@ class _AddEventScreen4State extends State<AddEventScreen4> {
     });
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+  Future _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      } else {
+        print("이미지 없음");
+      }
+    } catch (e) {
+      print("이미지 선택 중 오류 발생: $e");
     }
   }
 
-  Future<void> _createEvent() async {
+  Future _createEvent() async {
     if (_image == null) return;
-
     try {
       String imageUrl = await _apiService.uploadProfileImage(_image!);
-
       final eventData = {
         "title": widget.eventName,
-        "date": widget.eventDate.toIso8601String(), 
-        "members": widget.selectedMembers, 
-        "image": imageUrl, 
+        "date": widget.eventDate.toIso8601String(),
+        "members": widget.selectedMembers,
+        "image": imageUrl,
       };
-
-      await _dio.post('http://localhost:8080/event/new?id=$memberId', data: eventData, options: Options(
+      await _dio.post(
+        'http://localhost:8080/event/new?id=$memberId',
+        data: eventData,
+        options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
           },
-        ),);
+        ),
+      );
       Navigator.pushAndRemoveUntil(
         context,
         CupertinoPageRoute(builder: (context) => HomePage()),
@@ -87,42 +94,43 @@ class _AddEventScreen4State extends State<AddEventScreen4> {
       navigationBar: CupertinoNavigationBar(
         middle: Text('새로운 이벤트 생성'),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '대표 이미지를 선택해주세요.',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  border: Border.all(color: CupertinoColors.systemGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: _image != null
-                    ? ClipOval(
-                        child: Image.file(
+      child: Center( 
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, 
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '대표 이미지를 선택해주세요.',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 200, 
+                  height: 200, 
+                  decoration: BoxDecoration(
+                    border: Border.all(color: CupertinoColors.systemGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _image != null
+                      ? Image.file(
                           _image!,
                           fit: BoxFit.cover,
-                        ),
-                      )
-                    : Center(child: Text('이미지 선택하기')),
+                        )
+                      : Center(child: Text('이미지 선택하기')),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            CupertinoButton(
-              color: CupertinoColors.activeBlue,
-              child: Text('완료'),
-              onPressed: _createEvent,
-            ),
-          ],
+              SizedBox(height: 20),
+              CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                child: Text('완료'),
+                onPressed: _createEvent,
+              ),
+            ],
+          ),
         ),
       ),
     );

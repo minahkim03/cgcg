@@ -4,8 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 import '../user_preferences.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final Dio _dio = Dio();
-  late WebSocketChannel _channel;
   List<dynamic> messages = [];
   final TextEditingController _messageController = TextEditingController();
   String? accessToken;
@@ -29,6 +27,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _image;
   late final ApiService _apiService;
+  String? roomId;
+  late StompClient stompClient;
 
   @override
   void initState() {
@@ -48,7 +48,35 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     if (accessToken != null) {
       _createChatRoom();
+      stompClient = StompClient( 
+        config: StompConfig.sockJS(
+          url: "http://localhost:8080/ws", 
+          stompConnectHeaders: {
+            'Authorization': 'Bearer $accessToken'
+          },
+          onConnect: onConnectCallback
+        )
+      );
+      stompClient.activate();
     }
+  }
+
+  void onConnectCallback(StompFrame connectFrame) {
+    print('connected');
+    stompClient.subscribe(
+      destination: '/room/chat/$roomId', 
+      callback: (StompFrame frame) {
+        final messageData = {
+          'senderId': memberId,
+          'nickname': nickname,
+          'message': frame.body,
+          'file': '', 
+        };
+        setState(() {
+          messages.add(messageData);
+        });
+      },
+    );
   }
 
   Future<void> _createChatRoom() async {
@@ -61,24 +89,13 @@ class _ChatScreenState extends State<ChatScreen> {
           },
         ),
       );
-      String roomId = response.data;
-      _connectToWebSocket(roomId);
-      _fetchMessages(roomId);
+      setState(() {
+        roomId = response.data;
+      });
+      _fetchMessages(roomId!);
     } catch (e) {
       print('채팅방 생성 중 오류 발생: $e');
     }
-  }
-
-  void _connectToWebSocket(String roomId) {
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://localhost:8080/ws'),
-    );
-
-    _channel.stream.listen((data) {
-      setState(() {
-        messages.add(data);
-      });
-    });
   }
 
   Future<void> _fetchMessages(String roomId) async {
@@ -92,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
       setState(() {
-        messages = response.data['messages'];
+        messages = response.data['messages']; 
       });
     } catch (e) {
       print('메시지 로드 중 오류 발생: $e');
@@ -111,31 +128,30 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    if (_messageController.text.isNotEmpty) {
-      _channel.sink.add({
-        'senderId': memberId,
-        'nickname': nickname,
-        'message': _messageController.text,
-        'file': '',
-        'time': DateTime.now().toString(),
-      });
+    if (stompClient.connected && _messageController.text.isNotEmpty) {
+      stompClient.send(
+        destination: '/message/chat/$roomId',
+        body: _messageController.text,
+      );
       _messageController.clear();
+    } else {
+      print("STOMP 클라이언트가 연결되지 않았습니다.");
     }
   }
 
   void _sendMessageWithImage(String imageUrl) {
-    _channel.sink.add({
-      'senderId': memberId,
-      'nickname': nickname,
-      'message': '',
-      'file': imageUrl,
-      'time': DateTime.now().toString(),
-    });
+    if (_messageController.text.isNotEmpty) {
+      stompClient.send(
+        destination: '/message/chat/$roomId',
+        body: imageUrl,
+      );
+      _messageController.clear();
+    }
   }
 
   @override
   void dispose() {
-    _channel.sink.close(status.normalClosure);
+    stompClient.deactivate(); 
     _messageController.dispose();
     super.dispose();
   }
@@ -160,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 var message = messages[index];
-                bool isMine = message['senderId'] == memberId;
+                bool isMine = message['senderId'].toString() == memberId;
                 return _buildMessageItem(message, isMine);
               },
             ),
@@ -183,7 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 30,
                 height: 30,
                 child: Image.network(
-                  message['profileImage'],
+                  message['profileImage'], 
                   fit: BoxFit.cover,
                 ),
               ),
@@ -212,10 +228,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       _buildFilePreview(message['file'], isMine),
                   ],
                 ),
-              ),
-              Text(
-                message['time'],
-                style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
               ),
             ],
           ),

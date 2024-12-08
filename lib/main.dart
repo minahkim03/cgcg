@@ -1,3 +1,4 @@
+import 'package:cgcg/welcome_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'login/login_home.dart';
 import 'user_preferences.dart';
@@ -16,16 +17,17 @@ class MyApp extends StatelessWidget {
     return CupertinoApp(
       title: 'ㅊㄱㅊㄱ',
       home: FutureBuilder(
-        future: UserPreferences.loadUserData(),
+        future: UserPreferences.clearUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CupertinoActivityIndicator());
           } else {
             final userData = snapshot.data;
-            final accessToken = userData?['accessToken'] ;
+            //final accessToken = userData?['accessToken'] ;
+            final accessToken = "";
 
             if (accessToken != null && accessToken.isNotEmpty) {
-              return HomePage();
+              return WelcomeScreen();
             } else {
               return LoginHome();
             }

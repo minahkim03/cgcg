@@ -41,12 +41,15 @@ class _AddEventScreen3State extends State<AddEventScreen3> {
 
   Future<void> _fetchFriends() async {
     try {
-      final response = await _dio.get('http://localhost:8080/friend?id=$memberId',options: Options(
+      final response = await _dio.get(
+        'http://localhost:8080/friend?id=$memberId',
+        options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
           },
-        ),);
-        
+        ),
+      );
+
       setState(() {
         friends = response.data['friends'];
         selectedFriends = List<bool>.filled(friends.length, false);
@@ -67,7 +70,7 @@ class _AddEventScreen3State extends State<AddEventScreen3> {
   }
 
   void _navigateToNextPage() {
-    List<int> friends =_inviteFriends();
+    List<int> friends = _inviteFriends();
     Navigator.push(
       context,
       CupertinoPageRoute(
@@ -114,12 +117,17 @@ class _AddEventScreen3State extends State<AddEventScreen3> {
                 },
               ),
             ),
-            CupertinoButton(
-              color: CupertinoColors.activeBlue,
-              child: Text('다음으로'),
-              onPressed:() {
-                _navigateToNextPage();
-              },
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Center(
+                child: CupertinoButton(
+                  color: CupertinoColors.activeBlue,
+                  child: Text('다음으로'),
+                  onPressed: () {
+                    _navigateToNextPage();
+                  },
+                ),
+              ),
             ),
           ],
         ),
@@ -140,7 +148,7 @@ class FriendCard extends StatelessWidget {
     required this.nickname,
     required this.isSelected,
     required this.onSelected,
-    required this.id
+    required this.id,
   });
 
   @override

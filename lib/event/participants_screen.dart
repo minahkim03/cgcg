@@ -86,10 +86,10 @@ class ParticipantsScreenContent extends StatelessWidget {
   final int? eventId;
   final String? eventTitle;
 
-  ParticipantsScreenContent ({
+  ParticipantsScreenContent({
     required this.friends,
     required this.eventId,
-    required this. eventTitle
+    required this.eventTitle,
   });
 
   @override
@@ -103,24 +103,26 @@ class ParticipantsScreenContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CupertinoButton(
-              color: CupertinoColors.activeBlue,
-              child: Text('채팅하기'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(builder: (context) => ChatScreen(eventId: eventId, eventTitle: eventTitle,)),
-                );
-              },
-            ),
-            SizedBox(height: 16),
-            Expanded(
+            Container(
+              height: 600,
               child: ListView.builder(
                 itemCount: friends.length,
                 itemBuilder: (context, index) {
                   return FriendCard(
                     profileImage: friends[index]['profileImage'],
-                    nickname: friends[index]['nickname']
+                    nickname: friends[index]['nickname'],
+                  );
+                },
+              ),
+            ),
+            Center(
+              child: CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                child: Text('채팅하기'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (context) => ChatScreen(eventId: eventId, eventTitle: eventTitle)),
                   );
                 },
               ),

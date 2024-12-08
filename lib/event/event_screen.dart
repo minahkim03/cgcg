@@ -1,3 +1,5 @@
+import 'dart:ffi';
+import 'dart:io';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:dio/dio.dart';
@@ -22,6 +24,8 @@ class _EventScreenState extends State<EventScreen> {
   List<dynamic> members = [];
   String? accessToken;
   int? _selectedIndex; 
+  double latitude=0;
+  double longitude=0;
 
   @override
   void initState() {
@@ -54,6 +58,9 @@ class _EventScreenState extends State<EventScreen> {
         date = response.data['date'];
         places = response.data['places'];
         members = response.data['members'];
+        final firstPlace = places[0] as Map<String, dynamic>;
+        latitude = (firstPlace['latitude'] as num).toDouble();
+        longitude = (firstPlace['longitude'] as num).toDouble();
       });
     } catch (e) {
       print('이벤트 데이터 로드 중 오류 발생: $e');
@@ -62,7 +69,7 @@ class _EventScreenState extends State<EventScreen> {
   Set<NMarker> _createMarkers(List<dynamic> places) {
     return places.map((place) {
       return NMarker(
-        id: place['id'], 
+        id: place['id'].toString(), 
         position: NLatLng(
           place['latitude'], 
           place['longitude'],
@@ -96,7 +103,9 @@ class _EventScreenState extends State<EventScreen> {
             title: title,
             date: date,
             eventId: widget.eventId,
-            createMarkers : _createMarkers
+            createMarkers : _createMarkers,
+            latitude : latitude,
+            longitude : longitude
           );
       }
     }
@@ -133,11 +142,15 @@ class EventScreenContent extends StatelessWidget {
   final List<dynamic> places;
   final int? eventId;
   final Function(List<dynamic>) createMarkers;
+  final double latitude;
+  final double longitude;
 
   EventScreenContent({
     this.title,
     this.date,
     this.eventId,
+    required this.latitude,
+    required this.longitude,
     required this.members,
     required this.places,
     required this.createMarkers
@@ -145,6 +158,7 @@ class EventScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NLatLng initialPosition = NLatLng(36.579183, 128.482823);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('이벤트'),
@@ -154,6 +168,31 @@ class EventScreenContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: NaverMap(
+                options: NaverMapViewOptions(
+                  locationButtonEnable: true,
+                  initialCameraPosition: NCameraPosition(target: initialPosition, zoom: 15)
+                ),
+                onMapReady: (controller) {
+                  Set<NMarker> markers = createMarkers(places);
+                  controller.addOverlayAll(markers);
+                  for (var marker in markers) {
+                    final place = places.firstWhere((place) => place['id'].toString() == marker.info.id, orElse: () => null);
+                    if (place != null) {
+                      print("creating marker");
+                      print(marker.info);
+                      final infoWindow = NInfoWindow.onMarker(
+                        id: marker.info.id,
+                        text: place['name'],
+                      );
+                      marker.openInfoWindow(infoWindow);
+                    }
+                  }
+                },
+              ),
+            ),
             if (title != null) ...[
               Text(
                 title!,
@@ -166,25 +205,6 @@ class EventScreenContent extends StatelessWidget {
               ),
               SizedBox(height: 20),
             ],
-            Expanded(
-              child: NaverMap(
-                onMapReady: (Controller) {
-                  Set<NMarker> markers = createMarkers(places);
-                  Controller.addOverlayAll(markers);
-                  for (var marker in markers) {
-                    final place = places.firstWhere((place) => place['id'] == marker.info.id, orElse: () => null);
-
-                    if (place != null) {
-                      final infoWindow = NInfoWindow.onMarker(
-                        id: marker.info.id,
-                        text: place['name'],
-                      );
-                      marker.openInfoWindow(infoWindow);
-                    }
-                  }
-                }
-              ),
-            ),
             SizedBox(height: 20),
             Column(
               children: List.generate(places.length, (index) {

@@ -60,7 +60,7 @@ class _AddEventScreen2State extends State<AddEventScreen2> {
                         });
                       },
                       minimumYear: DateTime.now().year,
-                      maximumYear: DateTime.now().year + 5, 
+                      maximumYear: DateTime.now().year + 5,
                       mode: CupertinoDatePickerMode.date,
                     ),
                   ),
@@ -69,12 +69,15 @@ class _AddEventScreen2State extends State<AddEventScreen2> {
               color: CupertinoColors.systemGrey5,
             ),
             SizedBox(height: 20),
-            CupertinoButton(
-              color: CupertinoColors.activeBlue,
-              child: Text('다음으로'),
-              onPressed: () {
-                _navigateToNextPage();
-              },
+            SizedBox(height: 20),
+            Center(
+              child: CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                child: Text('다음으로'),
+                onPressed: () {
+                  _navigateToNextPage();
+                },
+              ),
             ),
           ],
         ),

@@ -51,5 +51,10 @@
 	<string>ny3wv784lx</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>위치 검색</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

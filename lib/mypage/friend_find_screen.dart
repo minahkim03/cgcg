@@ -70,7 +70,7 @@ class _FriendFindScreenState extends State<FriendFindScreen> {
         ),
       );
       setState(() {
-        _isFriendAdded = true; // 친구가 추가되면 버튼 비활성화
+        _isFriendAdded = true;
       });
     } catch (e) {
       print('친구 추가 중 오류 발생: $e');
@@ -160,7 +160,7 @@ class FriendFindContent extends StatelessWidget {
         middle: Text('친구 찾기'),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
