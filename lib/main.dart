@@ -17,14 +17,13 @@ class MyApp extends StatelessWidget {
     return CupertinoApp(
       title: 'ㅊㄱㅊㄱ',
       home: FutureBuilder(
-        future: UserPreferences.clearUserData(),
+        future: UserPreferences.loadUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CupertinoActivityIndicator());
           } else {
             final userData = snapshot.data;
-            //final accessToken = userData?['accessToken'] ;
-            final accessToken = "";
+            final accessToken = userData?['accessToken'] ;
 
             if (accessToken != null && accessToken.isNotEmpty) {
               return WelcomeScreen();
